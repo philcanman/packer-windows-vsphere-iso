@@ -8,10 +8,10 @@ packer {
     # if you would like to automatically install window updates, then uncomment
     # the following section. Please also uncomment Line 163-170
 
-    # windows-update = {
-    #   version = "0.14.0"
-    #   source = "github.com/rgl/windows-update"
-    # }
+    windows-update = {
+      version = "0.14.0"
+      source = "github.com/rgl/windows-update"
+    }
 
   }
 }
@@ -23,7 +23,7 @@ variable "autounattend_file" {
 
 variable "cpu_num" {
   type    = number
-  default = 2
+  default = 4
 }
 
 variable "disk_size" {
@@ -33,7 +33,7 @@ variable "disk_size" {
 
 variable "mem_size" {
   type    = number
-  default = 4096
+  default = 8192
 }
 
 variable "os_iso_checksum" {
@@ -71,7 +71,7 @@ variable "vsphere_guest_os_type" {
   default = ""
 }
 
-variable "vsphere_host" {
+variable "vsphere_server" {
   type    = string
   default = ""
 }
@@ -87,7 +87,12 @@ variable "vsphere_network" {
   default = ""
 }
 
-variable "vsphere_server" {
+variable "vsphere_cluster" {
+  type    = string
+  default = ""
+}
+
+variable "vsphere_folder" {
   type    = string
   default = ""
 }
@@ -116,24 +121,28 @@ variable "winrm_username" {
 source "vsphere-iso" "windows" {
 
   vcenter_server        = "${var.vsphere_server}"
-  host                  = "${var.vsphere_host}"
   username              = "${var.vsphere_username}"
   password              = "${var.vsphere_password}"
   insecure_connection  = "true"
   datacenter            = "${var.vsphere_datacenter}"
+  cluster               = "${var.vsphere_cluster}"
   datastore             = "${var.vsphere_datastore}"
-
+  folder                = "${var.vsphere_folder}"
+  
   CPUs                  = "${var.cpu_num}"
   RAM                   = "${var.mem_size}"
   RAM_reserve_all       = true
   disk_controller_type  = ["pvscsi"]
+  # disk_controller_type  = ["lsilogic-sas"]
   # firmware             = "bios"
   floppy_files          = ["${var.autounattend_file}", "setup/setup.ps1", "setup/vmtools.cmd", "setup/appx.ps1"]
-  floppy_img_path       = "${var.floppy_pvscsi}"
+  # floppy_img_path       = "${var.floppy_pvscsi}"
   guest_os_type         = "${var.vsphere_guest_os_type}"
   iso_checksum          = "${var.os_iso_checksum}"
   iso_url               = "${var.os_iso_url}"
   iso_paths             = ["${var.vmtools_iso_path}"]
+  remove_cdrom          = true
+  vm_version            = 14
 
   network_adapters {
     network             = "${var.vsphere_network}"
@@ -161,20 +170,40 @@ source "vsphere-iso" "windows" {
 build {
   sources = ["source.vsphere-iso.windows"]
 
+  provisioner "windows-shell" {
+    inline = ["dir c:\\"]
+  }
+
+  provisioner "powershell" {
+    inline = ["iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"]
+  }
+
+  provisioner "powershell" {
+    inline = [
+        "choco install -y vscode",
+        "choco install -y putty",
+        "choco install -y 7zip",
+        "choco install -y winscp",
+        "choco install -y python3",
+        "choco install -y googlechrome",
+        "choco install -y firefox"
+    ]
+  }
+
+  provisioner "powershell" {
+    script = "setup/set_wallpaper.ps1"
+  }
+
   # if you would like to automatically install window updates, then uncomment
   # the following section. Please also uncomment Line 11-14
 
-  # provisioner "windows-update" {
-  #   search_criteria = "IsInstalled=0"
-  #   filters = [
-  #     "exclude:$_.Title -like '*Preview*'",
-  #     "include:$true",
-  #   ]
-  #   update_limit = 25
-  # }
-
-  provisioner "windows-shell" {
-    inline = ["dir c:\\"]
+  provisioner "windows-update" {
+    search_criteria = "IsInstalled=0"
+    filters = [
+      "exclude:$_.Title -like '*Preview*'",
+      "include:$true",
+    ]
+    update_limit = 25
   }
 
 }

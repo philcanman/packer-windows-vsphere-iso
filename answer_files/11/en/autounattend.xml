@@ -15,16 +15,21 @@
             <DriverPaths>
                 <PathAndCredentials wcm:action="add" wcm:keyValue="A">
                     <!-- pvscsi-Windows8.flp -->
-                    <Path>B:\</Path>
+                    <Path>E:\Program Files\VMware\VMware Tools\Drivers\pvscsi\Win10\amd64</Path>
                 </PathAndCredentials>
             </DriverPaths>
         </component>
         <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <!-- <DiskConfiguration>
+                <WillShowUI>Always</WillShowUI>
+            </DiskConfiguration> -->
             <DiskConfiguration>
                 <Disk wcm:action="add">
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
                     <CreatePartitions>
                         <CreatePartition wcm:action="add">
-                            <Size>250</Size>
+                            <Size>500</Size>
                             <Order>1</Order>
                             <Type>Primary</Type>
                         </CreatePartition>
@@ -49,16 +54,16 @@
                             <Label>System</Label>
                         </ModifyPartition>
                     </ModifyPartitions>
-                    <DiskID>0</DiskID>
-                    <WillWipeDisk>true</WillWipeDisk>
                 </Disk>
             </DiskConfiguration>
+            <!-- Get image index with the following command
+            dism /get-wiminfo /wimfile:D:\sources\install.wim -->
             <ImageInstall>
                 <OSImage>
                     <InstallFrom>
                         <MetaData wcm:action="add">
                             <Key>/IMAGE/INDEX</Key>
-                            <Value>1</Value>
+                            <Value>10</Value>
                         </MetaData>
                     </InstallFrom>
                     <InstallTo>
@@ -71,12 +76,12 @@
             </ImageInstall>
             <UserData>
 			    <AcceptEula>true</AcceptEula>
-                <!--
+                <!-- Product key below is for Windows 10/11 Pro for Workstations -->
                 <ProductKey>
                     <WillShowUI>Never</WillShowUI>
-                    <Key>XGVPP-NMH47-7TTHJ-W3FW7-8HV2C</Key>
+                    <Key>NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J</Key>
                 </ProductKey>
-                -->
+               
             </UserData>
             <RunSynchronous>
                 <RunSynchronousCommand wcm:action="add">
@@ -154,11 +159,11 @@
         <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <AutoLogon>
                 <Password>
-                    <Value>vagrant</Value>
+                    <Value>WWTwwt1!</Value>
                     <PlainText>true</PlainText>
                 </Password>
                 <LogonCount>2</LogonCount>
-                <Username>vagrant</Username>
+                <Username>administrator</Username>
                 <Enabled>true</Enabled>
             </AutoLogon>
             <FirstLogonCommands>
@@ -178,9 +183,9 @@
                     <Description>Disable Hibernation Mode</Description>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd.exe /c wmic useraccount where "name='vagrant'" set PasswordExpires=FALSE</CommandLine>
+                    <CommandLine>cmd.exe /c wmic useraccount where "name='administrator'" set PasswordExpires=FALSE</CommandLine>
                     <Order>4</Order>
-                    <Description>Disable password expiration for vagrant user</Description>
+                    <Description>Disable password expiration for administrator user</Description>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
                     <Order>5</Order>
@@ -207,10 +212,10 @@
             </OOBE>
             <UserAccounts>
                 <AdministratorPassword>
-                    <Value>vagrant</Value>
+                    <Value>WWTwwt1!</Value>
                     <PlainText>true</PlainText>
                 </AdministratorPassword>
-                <LocalAccounts>
+                <!-- <LocalAccounts>
                     <LocalAccount wcm:action="add">
                         <Password>
                             <Value>vagrant</Value>
@@ -221,7 +226,7 @@
                         <Name>vagrant</Name>
                         <Description>Vagrant User</Description>
                     </LocalAccount>
-                </LocalAccounts>
+                </LocalAccounts> -->
             </UserAccounts>
         </component>
     </settings>
